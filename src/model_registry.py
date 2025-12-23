@@ -1,7 +1,8 @@
+import pickle
+
+import pandas as pd
 import mlflow
 import mlflow.sklearn
-import pickle
-import pandas as pd
 
 def save_best_model(comparison_csv_path):
     df = pd.read_csv(comparison_csv_path)
@@ -14,7 +15,9 @@ def save_best_model(comparison_csv_path):
     print(f"Best model selected: {best_model_name}")
 
     client = mlflow.tracking.MlflowClient()
-    experiment = client.get_experiment_by_name("Heart Disease Prediction")
+    experiment = client.get_experiment_by_name(
+        "Heart Disease Prediction"
+    )
 
     runs = client.search_runs(
         experiment_ids=[experiment.experiment_id],
@@ -37,6 +40,8 @@ def save_best_model(comparison_csv_path):
         pickle.dump(model, f)
 
     print("Final model saved in MLflow Registry and as pickle")
+
+
 
 if __name__ == "__main__":
     save_best_model("model_comparison.csv")

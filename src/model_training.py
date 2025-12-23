@@ -1,13 +1,12 @@
+import pandas as pd
 import mlflow
 import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
-
-from src.model_evaluate import evaluate_and_log
 from sklearn.model_selection import cross_validate, StratifiedKFold
-# from src.evaluate import evaluate_and_log
-import pandas as pd 
+
+from src.model_evaluate import evaluate_and_log 
 
 def cross_validate_model(pipeline, X, y):
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -22,7 +21,9 @@ def cross_validate_model(pipeline, X, y):
 
     avg_scores = {
         f"cv_{metric}_mean": scores[f"test_{metric}"].mean()
-        for metric in ["accuracy", "precision", "recall", "f1", "roc_auc"]
+        for metric in [
+            "accuracy", "precision", "recall", "f1", "roc_auc"
+        ]
     }
 
     mlflow.log_metrics(avg_scores)
