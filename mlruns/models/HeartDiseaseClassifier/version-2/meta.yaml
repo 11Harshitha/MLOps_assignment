@@ -1,8 +1,8 @@
 creation_timestamp: 1766576392048
-current_stage: Staging
+current_stage: Archived
 deployment_job_state: null
 description: null
-last_updated_timestamp: 1766576392177
+last_updated_timestamp: 1766579882306
 model_id: m-10159313ed8943e49899b4b02ec89544
 name: HeartDiseaseClassifier
 run_id: bb3c85784c654715b0e868a70b0bf4cb

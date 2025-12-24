@@ -48,6 +48,9 @@ def save_best_model(comparison_csv_path):
     with open("models/final_model.pkl", "wb") as f:
         pickle.dump(model, f)
 
+    with open("exported_model/model.pkl", "wb") as f:
+        pickle.dump(model, f)
+
     print("Final model saved in MLflow Registry and as pickle")
 
 
