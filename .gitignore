@@ -14,9 +14,6 @@ __pycache__/
 mlruns/
 
 # Models & artifacts
-models/
-*.pkl
-*.joblib
 *.png 
 mlruns/
 *.png
