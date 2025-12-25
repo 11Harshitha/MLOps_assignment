@@ -3,36 +3,18 @@ import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
 import mlflow
-import os 
-
-# with open("models/final_model.pkl", "rb") as f:
-#     model = pickle.load(f)
-
-# mlflow.set_tracking_uri(
-#     os.getenv("MLFLOW_TRACKING_URI", "http://192.168.1.1:5001")
-# )
-# MODEL_NAME = "HeartDiseaseClassifier"
-# MODEL_VERSION = "1"
-
-# # Load model at startup
-# model = mlflow.sklearn.load_model(
-#     model_uri=f"models:/{MODEL_NAME}/{MODEL_VERSION}"
-# )
-
-# No tracking URI needed if loading from local path!
 import mlflow.sklearn
+from src.logging_config import setup_logging
+import logging
+from src.monitoring import REQUEST_COUNT, REQUEST_LATENCY
+from fastapi import Request
+import time
+from prometheus_client import generate_latest
+from fastapi.responses import Response
 
-import mlflow
-from mlflow import artifacts
+setup_logging()
+logger = logging.getLogger(__name__)
 
-# # Define the model URI
-# model_uri = "models:/HeartDiseaseClassifier/staging"
-# # Define the local directory to download the model
-# local_dir = "./exported_model"
-# # Download the model artifacts
-# local_path = mlflow.artifacts.download_artifacts(artifact_uri=model_uri, dst_path=local_dir)
-# print("======================")
-# print(local_path)
 model = mlflow.sklearn.load_model(model_uri="exported_model")
 
 app = FastAPI(title="Heart Disease Prediction API")
@@ -52,8 +34,31 @@ class PatientInput(BaseModel):
     ca: int
     thal: int
 
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+
+    REQUEST_COUNT.labels(
+        method=request.method,
+        endpoint=request.url.path
+    ).inc()
+
+    REQUEST_LATENCY.observe(time.time() - start_time)
+    return response
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type="text/plain")
+
+@app.get("/")
+def health_check():
+    return "API is running"
+
 @app.post("/predict")
 def predict(data: PatientInput):
+    logger.info(f"Prediction request received: {data}")
+
     df = pd.DataFrame([data.dict()])
     prediction = int(model.predict(df)[0])
 
@@ -64,4 +69,5 @@ def predict(data: PatientInput):
         print(f"DEBUG: Probability failed with error: {e}") # This will show in your Docker logs
         confidence = None
 
+    logger.info(f"Prediction={prediction}, confidence={confidence}")
     return {"prediction": prediction, "confidence": confidence}
