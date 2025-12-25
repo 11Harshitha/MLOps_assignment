@@ -45,9 +45,6 @@ def save_best_model(comparison_csv_path):
     # Load model and save as pickle
     model = mlflow.sklearn.load_model(model_uri)
 
-    with open("models/final_model.pkl", "wb") as f:
-        pickle.dump(model, f)
-
     with open("exported_model/model.pkl", "wb") as f:
         pickle.dump(model, f)
 

@@ -18,6 +18,10 @@ models/
 *.pkl
 *.joblib
 *.png 
+mlruns/
+*.png
+*.json
+*.csv
 
 # Logs
 *.log
