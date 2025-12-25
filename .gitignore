@@ -22,6 +22,8 @@ mlruns/
 *.png
 *.json
 *.csv
+classification_report_logistic_regression.txt
+classification_report_random_forest.txt
 
 # Logs
 *.log
